@@ -1,4 +1,4 @@
-name: Publish to Modrinth
+name: Publish to Modrinth and CurseForge
 
 on:
   release:
@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  modrinth:
+  publish-to-modrinth:
     runs-on: ubuntu-latest
     steps:
       - name: Download the .mrpack from the release
@@ -16,52 +16,53 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.event.release.tag_name }}
           REPO: ${{ github.repository }}
+        run: gh release download "$TAG" --repo "$REPO" --pattern "*.mrpack" --dir pack
+
+      - name: Read the Minecraft version from the pack
+        id: mc
         run: |
-          gh release download "$TAG" --repo "$REPO" --pattern "*.mrpack" --dir pack
-          ls -l pack
+          FILE=$(ls pack/*.mrpack | head -n 1)
+          echo "version=$(unzip -p "$FILE" modrinth.index.json | jq -r '.dependencies.minecraft')" >> "$GITHUB_OUTPUT"
 
       - name: Publish to Modrinth
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: ${{ vars.MODRINTH_PROJECT_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-unfeature-mode: subset
+          modrinth-files: pack/*.mrpack
+          name: ${{ github.event.release.tag_name }}
+          version: ${{ github.event.release.tag_name }}
+          version-type: ${{ github.event.release.prerelease && 'beta' || 'release' }}
+          changelog: ${{ github.event.release.body }}
+          loaders: fabric
+          game-versions: ${{ steps.mc.outputs.version }}
+
+  publish-to-curseforge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download the CurseForge .zip from the release
         env:
-          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
-          PROJECT_ID: ${{ vars.MODRINTH_PROJECT_ID }}
-          CHANGELOG: ${{ github.event.release.body }}
-          PRERELEASE: ${{ github.event.release.prerelease }}
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+          REPO: ${{ github.repository }}
+        run: gh release download "$TAG" --repo "$REPO" --pattern "*.zip" --dir pack
+
+      - name: Read the Minecraft version from the pack
+        id: mc
         run: |
-          set -euo pipefail
+          FILE=$(ls pack/*.zip | head -n 1)
+          echo "version=$(unzip -p "$FILE" manifest.json | jq -r '.minecraft.version')" >> "$GITHUB_OUTPUT"
 
-          FILE=$(ls pack/*.mrpack | head -n 1)
-          unzip -p "$FILE" modrinth.index.json > index.json
-
-          VERSION=$(jq -r '.versionId' index.json)
-          MC=$(jq -r '.dependencies.minecraft' index.json)
-
-          if [ "$PRERELEASE" = "true" ]; then TYPE="beta"; else TYPE="release"; fi
-
-          jq -n \
-            --arg name "$VERSION" \
-            --arg version "$VERSION" \
-            --arg changelog "$CHANGELOG" \
-            --arg mc "$MC" \
-            --arg type "$TYPE" \
-            --arg project "$PROJECT_ID" \
-            '{
-              name: $name,
-              version_number: $version,
-              changelog: $changelog,
-              dependencies: [],
-              game_versions: [$mc],
-              version_type: $type,
-              loaders: ["fabric"],
-              featured: false,
-              project_id: $project,
-              file_parts: ["file"],
-              primary_file: "file"
-            }' > data.json
-
-          echo "Publishing $VERSION for Minecraft $MC as $TYPE"
-
-          curl --fail-with-body -sS -X POST "https://api.modrinth.com/v2/version" \
-            -H "Authorization: $MODRINTH_TOKEN" \
-            -H "User-Agent: YOURNAME/Enhancemize (YOUR_DISCORD_OR_EMAIL)" \
-            -F "data=<data.json;type=application/json" \
-            -F "file=@$FILE;type=application/x-modrinth-modpack+zip"
+      - name: Publish to CurseForge
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          curseforge-id: ${{ vars.CURSEFORGE_PROJECT_ID }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          curseforge-files: pack/*.zip
+          name: ${{ github.event.release.tag_name }}
+          version: ${{ github.event.release.tag_name }}
+          version-type: ${{ github.event.release.prerelease && 'beta' || 'release' }}
+          changelog: ${{ github.event.release.body }}
+          loaders: fabric
+          game-versions: ${{ steps.mc.outputs.version }}
