@@ -1,0 +1,67 @@
+name: Publish to Modrinth
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  modrinth:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download the .mrpack from the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh release download "$TAG" --repo "$REPO" --pattern "*.mrpack" --dir pack
+          ls -l pack
+
+      - name: Publish to Modrinth
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          PROJECT_ID: ${{ vars.MODRINTH_PROJECT_ID }}
+          CHANGELOG: ${{ github.event.release.body }}
+          PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          set -euo pipefail
+
+          FILE=$(ls pack/*.mrpack | head -n 1)
+          unzip -p "$FILE" modrinth.index.json > index.json
+
+          VERSION=$(jq -r '.versionId' index.json)
+          MC=$(jq -r '.dependencies.minecraft' index.json)
+
+          if [ "$PRERELEASE" = "true" ]; then TYPE="beta"; else TYPE="release"; fi
+
+          jq -n \
+            --arg name "$VERSION" \
+            --arg version "$VERSION" \
+            --arg changelog "$CHANGELOG" \
+            --arg mc "$MC" \
+            --arg type "$TYPE" \
+            --arg project "$PROJECT_ID" \
+            '{
+              name: $name,
+              version_number: $version,
+              changelog: $changelog,
+              dependencies: [],
+              game_versions: [$mc],
+              version_type: $type,
+              loaders: ["fabric"],
+              featured: false,
+              project_id: $project,
+              file_parts: ["file"],
+              primary_file: "file"
+            }' > data.json
+
+          echo "Publishing $VERSION for Minecraft $MC as $TYPE"
+
+          curl --fail-with-body -sS -X POST "https://api.modrinth.com/v2/version" \
+            -H "Authorization: $MODRINTH_TOKEN" \
+            -H "User-Agent: YOURNAME/Enhancemize (YOUR_DISCORD_OR_EMAIL)" \
+            -F "data=<data.json;type=application/json" \
+            -F "file=@$FILE;type=application/x-modrinth-modpack+zip"
