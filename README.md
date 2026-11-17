@@ -34,7 +34,7 @@ It contains no content mods, so you can play on any world and keep the classic M
 
 ## Screenshots
 
-![FPS comparison](assets/fps-comparison.png)
+![FPS comparison](assets/fps-showcase.png)
 ![Minimap and UI](assets/screenshot1.png)
 
 ## Installation
