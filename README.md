@@ -27,7 +27,7 @@ It contains no content mods, so you can play on any world and keep the classic M
 ## Features
 
 - 🚀 **Performance:** modern optimization mods for higher FPS
-- 🧩 **Quality of life:** minimap, [feature], [feature]
+- 🧩 **Quality of life:** minimap, zoom, etc.
 - 🎮 **Vanilla feel:** no new blocks, mobs, or progression changes
 - 🔄 **Up to date:** updated for new Minecraft versions, keeping your settings when possible
 - 🧱 **Fabric:** fast startup and wide mod compatibility
@@ -55,12 +55,12 @@ Works on most servers. Falling-Tree is the only mod that needs server support, s
 Join Our Discord and send your `latest.log` on [Discord](https://discord.gg/MxAX79g4u5) in the Support Channel.
 
 **Can I suggest a mod?**
-Yes, in the suggestions channel on [Discord](DISCORD_URL).
+Yes, in the suggestions channel on [Discord](https://discord.gg/MxAX79g4u5).
 
 ## Support
 
-- 🐛 Bugs and crashes: [open an issue](ISSUES_URL)
-- 💬 Questions and suggestions: [Discord](DISCORD_URL)
+- 🐛 Bugs and crashes: [open an issue](https://github.com/ItsAntoC/Enhancemize/issues)
+- 💬 Questions and suggestions: [Discord](https://discord.gg/MxAX79g4u5)
 
 ## License
 
