@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <a href="https://modrinth.com/modpack/enhancemize"><img src="https://img.shields.io/modrinth/dt/YOUR-PROJECT-SLUG?logo=modrinth&label=downloads" alt="Modrinth downloads"></a>
+  <a href="https://modrinth.com/modpack/enhancemize"><img src="https://img.shields.io/modrinth/dt/enhancemize?logo=modrinth&label=downloads" alt="Modrinth downloads"></a>
   <a href="https://discord.gg/MxAX79g4u5"><img src="https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white" alt="Discord"></a>
   <a href="https://ko-fi.com/antothecm"><img src="https://img.shields.io/badge/Ko--fi-Support-FF5E5B?logo=kofi&logoColor=white" alt="Ko-fi"></a>
 </p>
