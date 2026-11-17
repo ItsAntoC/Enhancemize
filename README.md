@@ -42,7 +42,7 @@ It contains no content mods, so you can play on any world and keep the classic M
 2. Search for **Enhancemize** and click **Install**.
 3. Press **Play**.
 
-Prefer another launcher? Download the `.mrpack` from the [Releases](github.com/ItsAntoC/Enhancemize/releases) page and import it into a launcher that supports Modrinth packs (like Prism Launcher).
+Prefer another launcher? Download the `.mrpack` from the [Releases](https://github.com/ItsAntoC/Enhancemize/releases) page and import it into a launcher that supports Modrinth packs (like Prism Launcher).
 
 ## Playing on servers
 
